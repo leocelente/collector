@@ -1,6 +1,7 @@
 #ifndef _NLP_H_
 #define _NLP_H_
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace nlp {
@@ -16,7 +17,8 @@ class TokenCount {
 class EntityExtractor {
 public:
   EntityExtractor(const std::string model_filename);
-  TokenCount reToken();
+  std::vector<std::string> extract(std::string_view contents);
+
 private:
     
 };
