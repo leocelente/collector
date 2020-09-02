@@ -3,6 +3,8 @@
 #include <iostream>
 #include <leveldb/db.h>
 #include <optional>
+
+
 using namespace db;
 Database::Database() { std::cout << "Starting Database Service\n"; }
 
@@ -28,7 +30,7 @@ InvIndexStorage::InvIndexStorage() {
 }
 
 bool InvIndexStorage::add(std::string token, UrlId id) {
-  std::cout << "Addding token: " << token << "to id: " << id;
+  std::cout << "Addding token: " << token << "to id: " << id <<'\n';
   return true;
 }
 

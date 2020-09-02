@@ -17,10 +17,13 @@ class TokenCount {
 class EntityExtractor {
 public:
   EntityExtractor(const std::string model_filename);
-  std::vector<std::string> extract(std::string_view contents);
+  std::vector<std::string> extract(std::string& filename);
 
 private:
-    
+    void all_tokens(std::ifstream& file_stream);
+    void filter();
+    void named_entities();
+    std::vector<std::string> tokens;
 };
 
 } // namespace nlp
