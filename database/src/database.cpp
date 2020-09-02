@@ -16,7 +16,7 @@ bool Database::add(std::string url, std::vector<std::string> tokens) {
   }
   std::cout << "Saving URL\n";
   for (const auto token : tokens) {
-    std::cout << "Addding Token to InvIndexStorage\n";
+    // std::cout << "Addding Token to InvIndexStorage\n";
     auto ok = this->indexes.add(token, index.value());
     if(!ok) {
       return false;
@@ -30,7 +30,7 @@ InvIndexStorage::InvIndexStorage() {
 }
 
 bool InvIndexStorage::add(std::string token, UrlId id) {
-  std::cout << "Addding token: " << token << "to id: " << id <<'\n';
+  std::cout << "Addding token: '" << token << "' to id: " << id <<'\n';
   return true;
 }
 
@@ -38,6 +38,6 @@ UrlStorage::UrlStorage() { std::cout << "Starting Url Storage" << std::endl; }
 
 std::optional<UrlId> UrlStorage::add(const std::string url) {
   UrlId id = 1;
-  std::cout << "Saving URL: " << url << " with hash: " << id << '\n';
+  std::cout << "Saving URL: " << url << " with id: " << id << '\n';
   return 1;
 }

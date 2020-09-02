@@ -3,16 +3,14 @@
 #include <iostream>
 
 int main(int argc, const char **argv) {
-  auto extractor = nlp::EntityExtractor("my_model.dat");
+  auto extractor = nlp::EntityExtractor("./models/ner_model.dat");
 
-  // std::ifstream file_stream("./sample_txt/i2c.txt");
   std::string filename{"./sample_txt/i2c.txt"};
-  const auto tokens = extractor.extract(filename);
-  for (const auto &tok : tokens) {
-    std::cout << '\n' << tok << '\n';
-  }
+  const auto entities = extractor.extract(filename);
+  std::cout << "Found " << entities.size() << " entities\n";
+  
   auto database = db::Database();
-  auto ok = database.add("http://myurl.com/tutorial", tokens);
+  auto ok = database.add(filename, entities);
   if (!ok) {
     std::cerr << "Failed to Save to Database\n";
   }
