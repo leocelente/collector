@@ -15,6 +15,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 include_directories("${PROJECT_SOURCE_DIR}/database/include")
 include_directories("${PROJECT_SOURCE_DIR}/nlp/include")
+include_directories("extern_leveldb_BINARY_DIR")
 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE database)

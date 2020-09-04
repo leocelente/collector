@@ -1,13 +1,14 @@
 #ifndef _DATABASE_H_
 #define _DATABASE_H_
 
-#include <string>
+#include <leveldb/db.h>
+#include <memory>
 #include <optional>
+#include <string>
 #include <vector>
-
+  
 namespace db {
-using UrlId = int; 
-
+using UrlId = int;
 
 class InvIndexStorage {
 public:
@@ -17,7 +18,8 @@ public:
   InvIndexStorage &operator=(InvIndexStorage &&) = default;
   InvIndexStorage &operator=(const InvIndexStorage &) = default;
   ~InvIndexStorage() = default;
-    bool add(std::string token, UrlId index);
+  bool add(std::string token, UrlId index);
+
 private:
 };
 
@@ -28,11 +30,12 @@ public:
   UrlStorage(const UrlStorage &) = default;
   UrlStorage &operator=(UrlStorage &&) = default;
   UrlStorage &operator=(const UrlStorage &) = default;
-  ~UrlStorage() = default;
-    std::optional<UrlId> add(const std::string url);    
- private:
-};
+  ~UrlStorage();
+  std::optional<UrlId> add(const std::string url);
+private:
+  leveldb::DB* db;
 
+};
 
 class Database {
 public:
@@ -44,12 +47,11 @@ public:
   ~Database() = default;
 
   bool add(std::string url, std::vector<std::string> tokens);
+
 private:
-    InvIndexStorage indexes;
-    UrlStorage urls;
+  InvIndexStorage indexes;
+  UrlStorage urls;
 };
-
-
 
 } // namespace db
 

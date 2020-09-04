@@ -7,5 +7,6 @@ add_library(
     "include/database.h"
     "src/database.cpp"   
 )
+
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-target_link_libraries(database PRIVATE leveldb)
+target_link_libraries(database PUBLIC leveldb)
