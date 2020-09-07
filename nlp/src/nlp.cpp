@@ -72,11 +72,13 @@ nlp::EntityExtractor::filter(std::vector<std::string> entities) {
       count.emplace_back(*it_tok, cnt);
     }
   }
+  constexpr int N = 5;
+  std::vector<TokenCount> top_entities(N);
+  std::partial_sort_copy(count.begin(), count.end(), top_entities.begin(),
+                         top_entities.end());
 
-  std::sort(count.begin(), count.end());
-
-  std::vector<std::string> filtered_entities(count.size());
-  std::transform(count.begin(), count.end(),
+  std::vector<std::string> filtered_entities;
+  std::transform(top_entities.begin(), top_entities.end(),
                  std::back_inserter(filtered_entities),
                  [](const auto &cp) { return cp.token; });
   return filtered_entities;

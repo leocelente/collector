@@ -9,10 +9,12 @@ namespace nlp {
 
 struct TokenCount {
   TokenCount(std::string token, int count);
+  TokenCount() = default;
   std::string token;
   int count = 0;
+
   bool operator<(const TokenCount &other) const {
-    return this->count < other.count;
+    return other.count < this->count;
   }
 };
 
