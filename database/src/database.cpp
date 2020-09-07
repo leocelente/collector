@@ -48,13 +48,29 @@ std::optional<UrlId> UrlStorage::add(const std::string url) {
   std::cout << "Saving URL: " << url << " with id: " << id << '\n';
   leveldb::Slice key1 = "0xDEAD";
   std::string value;
-  leveldb::Status s = db->Put(leveldb::WriteOptions(), key1, "beef");
+  leveldb::Status s = db->Put(leveldb::WriteOptions(), key1, leveldb::Slice("beef"));
   if (s.ok()) {
     s = db->Get(leveldb::ReadOptions(), key1, &value);
   }
   if (s.ok()) {
-	std::cout << key1.ToString() << ": '" << value << "'\n"; 
+    std::cout << key1.ToString() << ": '" << value << "'\n";
     s = db->Delete(leveldb::WriteOptions(), key1);
   }
+  leveldb::Slice key2 = "should_fail";
+  s = db->Get(leveldb::ReadOptions(), key2, &value);
+  if (s.ok()) {
+    std::cout << "did not fail, bad\n";
+  } else if (s.IsNotFound()) {
+    std::cout << "detected missing record, good\n";
+    s = db->Put(leveldb::WriteOptions(), key2, leveldb::Slice("TEST"));
+  } else {
+    std::cout << "failed, bad";
+    std::cout << "\n\tNotFound: " << s.IsNotFound()
+              << "\n\tCorrupt: " << s.IsCorruption()
+              << "\n\tIOError: " << s.IsIOError()
+              << "\n\tInvalidArg: " << s.IsInvalidArgument() << "\n";
+  }
+  s = db->Get(leveldb::ReadOptions(), key2, &value);
+  std::cout <<"Value should now be: '" << value << "'\n";
   return 1;
 }
