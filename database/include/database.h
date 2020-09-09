@@ -8,7 +8,7 @@
 #include <vector>
   
 namespace db {
-using UrlId = int;
+using UrlId = uint64_t;
 
 class InvIndexStorage {
 public:

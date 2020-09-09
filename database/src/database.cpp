@@ -43,34 +43,36 @@ UrlStorage::UrlStorage() {
 
 UrlStorage::~UrlStorage() { delete db; }
 
+void const num_to_bytes(uint64_t n, uint32_t len, uint8_t *dest) {
+  while (len--) {
+    dest[len] = (uint8_t)n;
+    n >>= 8;
+  }
+}
+
 std::optional<UrlId> UrlStorage::add(const std::string url) {
-  UrlId id = 1;
-  std::cout << "Saving URL: " << url << " with id: " << id << '\n';
-  leveldb::Slice key1 = "0xDEAD";
   std::string value;
-  leveldb::Status s = db->Put(leveldb::WriteOptions(), key1, leveldb::Slice("beef"));
+  std::hash<std::string> hasher;
+  uint64_t hashed_url = hasher(url);
+  std::cout << "HASH: '" << hashed_url << "'\n";
+
+  uint8_t blob[8] = {0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
+  num_to_bytes(hashed_url, sizeof(hashed_url), blob);
+
+  leveldb::Slice key2((char *)blob, 8);
+
+  auto s = db->Get(leveldb::ReadOptions(), key2, &value);
   if (s.ok()) {
-    s = db->Get(leveldb::ReadOptions(), key1, &value);
-  }
-  if (s.ok()) {
-    std::cout << key1.ToString() << ": '" << value << "'\n";
-    s = db->Delete(leveldb::WriteOptions(), key1);
-  }
-  leveldb::Slice key2 = "should_fail";
-  s = db->Get(leveldb::ReadOptions(), key2, &value);
-  if (s.ok()) {
-    std::cout << "did not fail, bad\n";
+    // Do nothing
+    std::cout << "Entry was already in Database\n";
   } else if (s.IsNotFound()) {
-    std::cout << "detected missing record, good\n";
-    s = db->Put(leveldb::WriteOptions(), key2, leveldb::Slice("TEST"));
+    std::cout << "Writing value\n";
+    s = db->Put(leveldb::WriteOptions(), key2, url);
   } else {
-    std::cout << "failed, bad";
-    std::cout << "\n\tNotFound: " << s.IsNotFound()
-              << "\n\tCorrupt: " << s.IsCorruption()
-              << "\n\tIOError: " << s.IsIOError()
-              << "\n\tInvalidArg: " << s.IsInvalidArgument() << "\n";
+    return {}; // false std::optional
   }
-  s = db->Get(leveldb::ReadOptions(), key2, &value);
-  std::cout <<"Value should now be: '" << value << "'\n";
-  return 1;
+  // ? Checks 
+  // s = db->Get(leveldb::ReadOptions(), key2, &value); 
+  // std::cout << "Value should now be: '" << value << "'\n";
+  return hashed_url;
 }
