@@ -17,10 +17,11 @@ public:
   InvIndexStorage(const InvIndexStorage &) = default;
   InvIndexStorage &operator=(InvIndexStorage &&) = default;
   InvIndexStorage &operator=(const InvIndexStorage &) = default;
-  ~InvIndexStorage() = default;
+  ~InvIndexStorage();
   bool add(std::string token, UrlId index);
 
 private:
+  leveldb::DB* db;
 };
 
 class UrlStorage {

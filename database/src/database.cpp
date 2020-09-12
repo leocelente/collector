@@ -11,7 +11,7 @@ bool Database::add(std::string url, std::vector<std::string> tokens) {
   std::cout << "Processing URL: " << url << '\n';
   auto index = this->urls.add(url);
   if (!index) {
-    std::cerr << "Could not save URL\n";
+    std::cout << "URL was already in database...";
   }
   std::cout << "Saving URL\n";
   for (const auto token : tokens) {
@@ -25,10 +25,23 @@ bool Database::add(std::string url, std::vector<std::string> tokens) {
 
 InvIndexStorage::InvIndexStorage() {
   std::cout << "Starting InvIndex Storage\n";
+  leveldb::Options options;
+  options.create_if_missing = true;
+  leveldb::Status status =
+      leveldb::DB::Open(options, "/tmp/invidxdb", &(this->db));
+  assert(status.ok());
 }
+
+InvIndexStorage::~InvIndexStorage() { delete db; }
 
 bool InvIndexStorage::add(std::string token, UrlId id) {
   std::cout << "Addding token: '" << token << "' to id: " << id << '\n';
+
+  // TODO: get index
+  // TODO: copy contents
+  // TODO: mutate
+  // TODO: write
+
   return true;
 }
 
@@ -58,21 +71,21 @@ std::optional<UrlId> UrlStorage::add(const std::string url) {
 
   uint8_t blob[8] = {0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
   num_to_bytes(hashed_url, sizeof(hashed_url), blob);
-
+  // TODO: Find better solution for this conversion
   leveldb::Slice key2((char *)blob, 8);
 
   auto s = db->Get(leveldb::ReadOptions(), key2, &value);
-  if (s.ok()) {
-    // Do nothing
-    std::cout << "Entry was already in Database\n";
-  } else if (s.IsNotFound()) {
+  if (s.IsNotFound()) {
     std::cout << "Writing value\n";
     s = db->Put(leveldb::WriteOptions(), key2, url);
+  } else if (s.ok()) {
+    std::cout << "Entry was already in Database\n";
+    return {};
   } else {
-    return {}; // false std::optional
-  }
-  // ? Checks 
-  // s = db->Get(leveldb::ReadOptions(), key2, &value); 
+       throw;
+    }
+  // ? Checks
+  // s = db->Get(leveldb::ReadOptions(), key2, &value);
   // std::cout << "Value should now be: '" << value << "'\n";
   return hashed_url;
 }
