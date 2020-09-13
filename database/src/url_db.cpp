@@ -1,5 +1,6 @@
 #include "../include/url_db.h"
 #include <iostream>
+
 static void const num_to_bytes(uint64_t n, uint32_t len, uint8_t *dest) {
   while (len--) {
     dest[len] = (uint8_t)n;
@@ -26,38 +27,32 @@ UrlStorage::UrlStorage() {
 
 UrlStorage::~UrlStorage() { delete db; }
 
-std::optional<UrlId> UrlStorage::add(const std::string url) {
+std::optional<UrlId> UrlStorage::add(const std::string &url) const {
+  const UrlId hashed_url = std::hash<std::string>()(url);
+  // Conversion to Slice
+  std::array<uint8_t, sizeof(UrlId)> blob;
+  num_to_bytes(hashed_url, blob.size(), blob.data());
+  leveldb::Slice key((char *)blob.data(), blob.size());
+
   std::string value;
-  std::hash<std::string> hasher;
-  uint64_t hashed_url = hasher(url);
-  //   std::cout << "HASH: '" << hashed_url << "'\n";
-
-  uint8_t blob[8] = {0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
-  num_to_bytes(hashed_url, sizeof(hashed_url), blob);
-  // TODO: Find better solution for this conversion
-  leveldb::Slice key2((char *)blob, 8);
-
-  auto s = db->Get(leveldb::ReadOptions(), key2, &value);
+  auto s = db->Get(leveldb::ReadOptions(), key, &value);
   if (s.IsNotFound()) {
-    std::cout << "Writing value\n";
-    s = db->Put(leveldb::WriteOptions(), key2, url);
+    s = db->Put(leveldb::WriteOptions(), key, url);
+    return hashed_url;
   } else if (s.ok()) {
     // std::cout << "Entry was already in Database\n";
     return {};
   } else {
     throw;
   }
-  // ? Checks
-  // s = db->Get(leveldb::ReadOptions(), key2, &value);
-  // std::cout << "Value should now be: '" << value << "'\n";
-  return hashed_url;
 }
 
-std::optional<std::string> UrlStorage::find(UrlId index) {
-  std::array<uint8_t, 8> blob;
-  std::string value;
+std::optional<std::string> UrlStorage::find(const UrlId index) const{
+  std::array<uint8_t, sizeof(UrlId)> blob;
   num_to_bytes(index, sizeof(index), blob.data());
-  leveldb::Slice key((char *)blob.data(), 8);
+  leveldb::Slice key((char *)blob.data(), blob.size());
+  
+  std::string value;
   auto s = db->Get(leveldb::ReadOptions(), key, &value);
   // TODO: handle not found
   if (!s.ok()) {

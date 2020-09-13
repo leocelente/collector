@@ -5,10 +5,11 @@
 #include <string_view>
 #include <vector>
 
+
 namespace nlp {
 
 struct TokenCount {
-  TokenCount(std::string token, int count);
+  TokenCount(const std::string& token, const int count);
   TokenCount() = default;
   std::string token;
   int count = 0;
@@ -20,8 +21,8 @@ struct TokenCount {
 
 class EntityExtractor {
 public:
-  EntityExtractor(const std::string model_filename);
-  std::vector<std::string> extract(std::string &filename);
+  EntityExtractor(const std::string& model_filename);
+  std::vector<std::string> extract(const std::string &filename);
 
 private:
   void all_tokens(std::ifstream &file_stream);

@@ -4,17 +4,13 @@
 #include <mitie/named_entity_extractor.h>
 #include <string>
 
-nlp::TokenCount::TokenCount(std::string token_, int count_)
-    : token(token_), count(count_) {}
+using namespace nlp;
 
-nlp::EntityExtractor::EntityExtractor(const std::string model_filename_)
-    : model_file(model_filename_) {
-  std::cout << "Starting Entity Extractor with model: " << model_filename_
-            << std::endl;
-}
+EntityExtractor::EntityExtractor(const std::string& model_filename_)
+    : model_file(model_filename_) {}
 
 // ? possible string_view
-std::vector<std::string> nlp::EntityExtractor::extract(std::string &filename) {
+std::vector<std::string> EntityExtractor::extract(const std::string &filename) {
   std::ifstream file(filename);
   if (!file) {
     std::cout << "Unable to load input text file" << std::endl;
@@ -30,12 +26,14 @@ std::vector<std::string> nlp::EntityExtractor::extract(std::string &filename) {
 }
 
 std::vector<std::string>
-nlp::EntityExtractor::named_entities(std::vector<std::string> &tokens) {
+EntityExtractor::named_entities(std::vector<std::string> &tokens) {
 
+  // ! This is a problem,  the deserialization takes a long time
+  // ! It must not be done in every extraction
   mitie::named_entity_extractor ner{}; // create entity extractor
   std::string classname;
   dlib::deserialize(this->model_file) >> classname >> ner; // load ml model
-
+  std::cout << classname << '\n';
   std::vector<pair<size_t, size_t>> chunks;
   std::vector<size_t> chunk_tags;
   std::vector<double> chunk_scores;
@@ -52,7 +50,7 @@ nlp::EntityExtractor::named_entities(std::vector<std::string> &tokens) {
 }
 
 std::vector<std::string>
-nlp::EntityExtractor::filter(std::vector<std::string> entities) {
+EntityExtractor::filter(std::vector<std::string> entities) {
   std::vector<std::string> repeated_tokens{};
   std::sort(entities.begin(), entities.end());
   notunique_sorted(entities.begin(), entities.end(),
@@ -83,3 +81,6 @@ nlp::EntityExtractor::filter(std::vector<std::string> entities) {
                  [](const auto &cp) { return cp.token; });
   return filtered_entities;
 }
+
+TokenCount::TokenCount(const std::string &token_, const int count_)
+    : token(token_), count(count_) {}

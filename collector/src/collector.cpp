@@ -3,13 +3,11 @@
 #include <iostream>
 
 int main(int argc, const char **argv) {
-  std::cout << "Loading NER Model...";
+  std::cout << "Loading NER Model...\n";
   auto extractor = nlp::EntityExtractor("./models/ner_model.dat");
-  std::cout << "OK\n";
 
   std::string filename{"./sample_txt/IIC.txt"};
   const auto entities = extractor.extract(filename);
-  std::cout << "Found " << entities.size() << " entities\n";
 
   auto database = db::Database();
   auto ok = database.add(filename, entities);

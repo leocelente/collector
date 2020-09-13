@@ -12,8 +12,8 @@ class InvIndexStorage {
 public:
   InvIndexStorage();
   ~InvIndexStorage();
-  bool add(std::string token, UrlId index);
-  std::vector<UrlId> find(std::string token);
+  bool add(const std::string &token, const UrlId index) const;
+  [[nodiscard]] std::vector<UrlId> find(const std::string &token) const;
 
 private:
   leveldb::DB *db;

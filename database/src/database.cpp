@@ -1,15 +1,16 @@
 
 #include "../include/database.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <optional>
 
 using namespace db;
 
-bool Database::add(std::string url, std::vector<std::string> tokens) {
-  std::cout << "Processing URL: " << url << '\n';
-  auto index = this->urls.add(url);
+bool Database::add(const std::string &url,
+                   const std::vector<std::string> &tokens) const {
+  const auto index = this->urls.add(url);
   if (!index) {
     std::cout << "URL was already in database...\n";
     return true;
@@ -21,24 +22,21 @@ bool Database::add(std::string url, std::vector<std::string> tokens) {
       return false;
     }
   }
-  auto results = indexes.find(tokens[0]);
-  for (const auto &r : results) {
-    std::cout << r << '\n';
-  }
   return true;
 }
 
-std::vector<std::string> Database::find(std::string token) {
-  auto idxs = indexes.find(token);
+std::vector<std::string> Database::find(const std::string &token) const {
+  const auto idxs = indexes.find(token);
   std::vector<std::string> results(idxs.size());
+  std::transform(idxs.begin(), idxs.end(), results.begin(),
+                 [&](const auto &idx) {
+                   auto url = urls.find(idx);
+                   if (url) {
+                     return url.value();
+                   } else {
+                     return std::string{"no match"};
+                   }
+                 });
 
-  for (const auto &idx : idxs) {
-    auto url = urls.find(idx);
-    if (url) {
-      results.push_back(url.value());
-    }
-  }
   return results;
 }
-
-// =============================================================================

@@ -26,10 +26,9 @@ InvIndexStorage::InvIndexStorage() {
 
 InvIndexStorage::~InvIndexStorage() { delete db; }
 
-bool InvIndexStorage::add(std::string token, UrlId id) {
-  std::cout << "Addding token: '" << token << "' to id: " << id << '\n';
+bool InvIndexStorage::add(const std::string& token, const UrlId id) const {
+  std::cout << "Addding token: '" << token <<'\n';
 
-  // TODO: get index
   leveldb::Slice key{token};
   std::string value;
 
@@ -38,45 +37,39 @@ bool InvIndexStorage::add(std::string token, UrlId id) {
 
   auto s = db->Get(leveldb::ReadOptions(), key, &value);
   if (s.ok()) {
-    // TODO: copy contents
     std::vector<char> new_value(value.size());
     std::copy(value.begin(), value.end(), new_value.begin());
-    // TODO: mutate
+    std::copy(index_arr.begin(), index_arr.end(), new_value.begin());
 
-    for (const auto &c : index_arr) {
-      new_value.push_back(c);
-    }
-    // TODO: write
-    leveldb::Slice val((char *)new_value.data(), new_value.size());
-    s = db->Put(leveldb::WriteOptions(), key, val);
+    leveldb::Slice new_val_slice((char *)new_value.data(), new_value.size());
+    s = db->Put(leveldb::WriteOptions(), key, new_val_slice);
     if (!s.ok()) {
-      std::cerr << "Failed at write\n";
+      std::cerr << "Could not rewrite value\n";
+      return false;
     }
   } else if (s.IsNotFound()) {
-    // create it
     leveldb::Slice val((char *)index_arr.data(), index_arr.size());
     s = db->Put(leveldb::WriteOptions(), key, val);
     if (!s.ok()) {
-      std::cerr << "Failed at write\n";
+      std::cerr << "Could not write new value\n";
+      return false;
     }
   } else {
     throw;
   }
-
   return true;
 }
 
-std::vector<UrlId> InvIndexStorage::find(std::string token) {
-  leveldb::Slice key{token};
+std::vector<UrlId> InvIndexStorage::find(const std::string& token) const {
   std::vector<UrlId> idxs;
   std::string read_val;
-  auto s = db->Get(leveldb::ReadOptions(), key, &read_val);
+  auto s = db->Get(leveldb::ReadOptions(), token, &read_val);
   std::vector<uint8_t> data(read_val.size());
   std::copy(read_val.begin(), read_val.end(), data.begin());
   if (s.ok()) {
-    int n = data.size();
-    for (int i = 0; i < n; i += 8) {
-      uint64_t x = bytes_to_num(8, &data[i]);
+    const auto n = data.size();
+    for (size_t i = 0; i < n; i += 8) {
+      const auto x = bytes_to_num(8, &data[i]);
       idxs.push_back(x);
     }
   }

@@ -9,4 +9,4 @@ add_library(
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
-target_link_libraries(nlp PRIVATE mitie)
+target_link_libraries(nlp PUBLIC mitie)

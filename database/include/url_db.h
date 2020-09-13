@@ -12,8 +12,8 @@ class UrlStorage {
 public:
   UrlStorage();
   ~UrlStorage();
-  std::optional<UrlId> add(const std::string url);
-  std::optional<std::string> find(UrlId index);
+  std::optional<UrlId> add(const std::string &url) const;
+  [[nodiscard]] std::optional<std::string> find(const UrlId index) const;
 
 private:
   leveldb::DB *db;
