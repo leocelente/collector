@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <mitie/named_entity_extractor.h>
 
 
 namespace nlp {
@@ -30,6 +31,8 @@ private:
   std::vector<std::string> named_entities(std::vector<std::string> &tokens);
   // std::vector<std::string> tokens;
   std::string model_file;
+
+  mitie::named_entity_extractor ner;
 };
 
 } // namespace nlp

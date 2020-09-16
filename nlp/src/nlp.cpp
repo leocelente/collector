@@ -6,8 +6,11 @@
 
 using namespace nlp;
 
-EntityExtractor::EntityExtractor(const std::string& model_filename_)
-    : model_file(model_filename_) {}
+EntityExtractor::EntityExtractor(const std::string &model_filename_)
+    : model_file(model_filename_) {
+  std::string classname;
+  dlib::deserialize(this->model_file) >> classname >> ner; // load ml model
+}
 
 // ? possible string_view
 std::vector<std::string> EntityExtractor::extract(const std::string &filename) {
@@ -28,12 +31,8 @@ std::vector<std::string> EntityExtractor::extract(const std::string &filename) {
 std::vector<std::string>
 EntityExtractor::named_entities(std::vector<std::string> &tokens) {
 
-  // ! This is a problem,  the deserialization takes a long time
-  // ! It must not be done in every extraction
-  mitie::named_entity_extractor ner{}; // create entity extractor
-  std::string classname;
-  dlib::deserialize(this->model_file) >> classname >> ner; // load ml model
-  std::cout << classname << '\n';
+  // mitie::named_entity_extractor ner{}; // create entity extractor
+
   std::vector<pair<size_t, size_t>> chunks;
   std::vector<size_t> chunk_tags;
   std::vector<double> chunk_scores;

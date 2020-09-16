@@ -8,5 +8,5 @@ add_library(
     "src/nlp.cpp" 
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-
+set(mitie_include_path "${mitie_path}include" PARENT_SCOPE)
 target_link_libraries(nlp PUBLIC mitie)
