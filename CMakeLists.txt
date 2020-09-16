@@ -8,7 +8,8 @@ include("${PROJECT_SOURCE_DIR}/nlp/external/mitielib/cmake")
 add_subdirectory("${PROJECT_SOURCE_DIR}/database")
 add_subdirectory("${PROJECT_SOURCE_DIR}/nlp")
 
-add_executable(
+
+add_executable( 
     ${PROJECT_NAME}
     collector/include/collector.h
     collector/src/collector.cpp
