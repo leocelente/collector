@@ -17,6 +17,7 @@ int main(int argc, const char **argv) {
   const std::regex is_term("([[:alnum:]]+)");
   std::smatch cmd_match;
   std::smatch arg_match;
+  const auto database = db::Database();
 
   do {
     std::cout << ">";
@@ -31,6 +32,16 @@ int main(int argc, const char **argv) {
       std::ssub_match url_match = arg_match[0];
       std::string url = url_match.str();
       std::cout << "  url: " << url << '\n';
+      if (database.check(url)) {
+        std::cout << "This file is already in the database\n";
+        continue;
+      }
+      const auto entities = extractor.extract(url);
+
+      const auto ok = database.add(url, entities);
+      if (!ok) {
+        std::cerr << "Failed to Save to Database\n";
+      }
 
     } else if (std::regex_match(cmd, cmd_match, is_find) &&
                std::regex_match(arg, arg_match, is_term)) {
@@ -39,34 +50,18 @@ int main(int argc, const char **argv) {
       std::string action = action_match.str();
       std::cout << "  [searching]: '" << action << "'";
       std::ssub_match url_match = arg_match[0];
-      std::string url = url_match.str();
-      std::cout << "  term: " << url << '\n';
+      std::string term = url_match.str();
+      std::cout << "  term: " << term << '\n';
+
+      const auto results = database.find(term);
+      for (const auto &url : results) {
+        std::cout << url << '\n';
+      }
 
     } else {
       std::cout << "[*] Not a valid command!\n";
     }
   } while (!std::regex_match(cmd, cmd_match, is_exit));
-
-  for (size_t i = 0; i < 2; i++) {
-    std::string filename{"./sample_txt/IIC.txt"};
-    const auto database = db::Database();
-
-    if (database.check(filename)) {
-      std::cout << "This file is already in the database\n";
-      continue;
-    }
-    const auto entities = extractor.extract(filename);
-
-    const auto ok = database.add(filename, entities);
-    if (!ok) {
-      std::cerr << "Failed to Save to Database\n";
-    }
-    std::cout << "Searching for: " << entities[0] << '\n';
-    const auto results = database.find(entities[0]);
-    for (const auto &url : results) {
-      std::cout << url << '\n';
-    }
-  }
 
   return 0;
 }
