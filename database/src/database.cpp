@@ -40,3 +40,7 @@ std::vector<std::string> Database::find(const std::string &token) const {
 
   return results;
 }
+
+bool Database::check(const std::string &filename) const {
+  return urls.check(filename);
+}

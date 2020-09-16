@@ -14,8 +14,8 @@ using UrlId = uint64_t;
 class Database {
 public:
   bool add(const std::string& url, const std::vector<std::string>& tokens)const;
-  [[nodiscard]]std::vector<std::string> find(const std::string& token) const;
-
+  [[nodiscard]] std::vector<std::string> find(const std::string& token) const;
+  [[nodiscard]] bool check(const std::string& filename) const;
 private:
   InvIndexStorage indexes;
   UrlStorage urls;

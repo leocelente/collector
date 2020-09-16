@@ -47,11 +47,11 @@ std::optional<UrlId> UrlStorage::add(const std::string &url) const {
   }
 }
 
-std::optional<std::string> UrlStorage::find(const UrlId index) const{
+std::optional<std::string> UrlStorage::find(const UrlId index) const {
   std::array<uint8_t, sizeof(UrlId)> blob;
   num_to_bytes(index, sizeof(index), blob.data());
   leveldb::Slice key((char *)blob.data(), blob.size());
-  
+
   std::string value;
   auto s = db->Get(leveldb::ReadOptions(), key, &value);
   // TODO: handle not found
@@ -60,4 +60,15 @@ std::optional<std::string> UrlStorage::find(const UrlId index) const{
     return {};
   }
   return value;
+}
+
+bool UrlStorage::check(const std::string &url) const  {
+  const UrlId hashed_url = std::hash<std::string>()(url);
+
+  std::array<uint8_t, sizeof(UrlId)> blob;
+  num_to_bytes(hashed_url, blob.size(), blob.data());
+  leveldb::Slice key((char *)blob.data(), blob.size());
+  std::string value;
+  const auto s = db->Get(leveldb::ReadOptions(), key, &value);
+  return (s.ok()); 
 }
